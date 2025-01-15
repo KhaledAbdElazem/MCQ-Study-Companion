@@ -3,10 +3,13 @@ import { QuizView } from './components/QuizView';
 import { useStudyStore } from './stores/studyStore';
 import { LectureUploader } from './components/LectureUploader';
 
+
 export default function App() {
   const { currentSet } = useStudyStore();
 
   return (
+   <>
+   
     <div className="min-h-screen bg-gradient-to-b from-purple-100 to-blue-100">
       <header className="bg-indigo-800 text-white py-4">
         <div className="max-w-7xl mx-auto px-4">
@@ -29,6 +32,9 @@ export default function App() {
           <QuizView />
         )}
       </main>
+      
     </div>
+
+    </>
   );
 }

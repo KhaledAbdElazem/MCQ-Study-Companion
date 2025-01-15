@@ -36,9 +36,9 @@ export async function testGeminiAPI(): Promise<boolean> {
     console.log("Testing Gemini API...");
 
     const model = genAI.getGenerativeModel({
-      model: "gemini-pro",
+      model: "gemini-1.5-flash",
       generationConfig: {
-        maxOutputTokens: 100,
+        maxOutputTokens: 300,
         temperature: 0.7,
       },
     });

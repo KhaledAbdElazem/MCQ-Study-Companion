@@ -1,35 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStudyStore } from '../stores/studyStore';
+import { Sparkles } from 'lucide-react'; // Import an icon for correct answers
+import Confetti from 'react-confetti'; // Import the Confetti component
 
 export function QuizView() {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
-  
+  const [showConfetti, setShowConfetti] = useState(false); // State to control confetti
   const { currentSet, currentQuestion, nextQuestion } = useStudyStore();
-  
+
+  // Reset confetti when moving to the next question
+  useEffect(() => {
+    if (showConfetti) {
+      const timer = setTimeout(() => {
+        setShowConfetti(false);
+      }, 5000); // Confetti will disappear after 5 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [showConfetti]);
+
   if (!currentSet || !currentSet.questions.length) {
     return (
       <div className="text-center p-6">
-        <p className="text-lg font-serif text-indigo-900">
+        <p className="text-lg font-bold text-indigo-900">
           No questions available. Please generate questions first.
         </p>
       </div>
     );
   }
-  
+
   const question = currentSet.questions[currentQuestion];
-  
+
   if (!question) {
     return (
       <div className="text-center p-6">
-        <p className="text-lg font-serif text-indigo-900">
+        <p className="text-lg font-bold text-indigo-900">
           All questions completed! Would you like to start over?
         </p>
         <button
           onClick={() => nextQuestion()}
           className="mt-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white 
             px-6 py-3 rounded-lg hover:from-indigo-700 hover:to-purple-700 
-            transition-all duration-300 shadow-md hover:shadow-lg font-serif"
+            transition-all duration-300 shadow-lg hover:shadow-xl font-bold"
         >
           Start Over
         </button>
@@ -40,36 +52,50 @@ export function QuizView() {
   const handleAnswer = (index: number) => {
     setSelectedAnswer(index);
     setShowResult(true);
+    if (index === question.correctAnswer) {
+      setShowConfetti(true); // Show confetti for correct answers
+    }
   };
 
   const handleNext = () => {
     nextQuestion();
     setSelectedAnswer(null);
     setShowResult(false);
+    setShowConfetti(false); // Reset confetti for the next question
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h2 className="text-xl font-serif text-indigo-900 mb-4">
+    <div className="max-w-2xl mx-auto p-6 relative">
+      {/* Confetti effect */}
+      {showConfetti && (
+        <Confetti
+          width={window.innerWidth}
+          height={window.innerHeight}
+          recycle={false} // Stop confetti after it falls
+          numberOfPieces={300} // Number of confetti pieces
+          gravity={0.2} // How fast the confetti falls
+        />
+      )}
+
+      <h2 className="text-2xl font-bold text-indigo-900 mb-6">
         Quest {currentQuestion + 1} of {currentSet.questions.length}
       </h2>
-      <div className="bg-white/80 rounded-lg shadow-lg p-6 border-2 border-purple-200">
-        <p className="text-lg mb-4 font-serif text-indigo-900">{question.question}</p>
-        <div className="space-y-3">
+      <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-white/20">
+        <p className="text-xl font-semibold text-indigo-900 mb-6">{question.question}</p>
+        <div className="space-y-4">
           {question.options.map((option, index) => (
             <button
               key={index}
-              className={`w-full p-3 text-left rounded-lg border-2 font-serif
+              className={`w-full p-4 text-left rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-lg
                 ${
                   selectedAnswer === index
                     ? showResult
                       ? index === question.correctAnswer
-                        ? 'bg-green-100 border-green-500 shadow-green-200'
-                        : 'bg-red-100 border-red-500 shadow-red-200'
-                      : 'bg-purple-100 border-purple-500 shadow-purple-200'
-                    : 'border-purple-200 hover:bg-purple-50 hover:border-purple-400'
-                }
-                transition-all duration-300 shadow-md hover:shadow-lg`}
+                        ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white animate-pulse'
+                        : 'bg-gradient-to-r from-red-500 to-rose-500 text-white'
+                      : 'bg-gradient-to-r from-purple-500 to-blue-500 text-white'
+                    : 'bg-white hover:bg-purple-50 text-indigo-900'
+                }`}
               onClick={() => handleAnswer(index)}
               disabled={showResult}
             >
@@ -79,22 +105,28 @@ export function QuizView() {
         </div>
         {showResult && (
           <div className="mt-6">
-            <p className={`font-serif text-lg ${
+            <p className={`text-xl font-bold mb-4 ${
               selectedAnswer === question.correctAnswer 
                 ? 'text-emerald-600' 
                 : 'text-rose-600'
-            } mb-4`}>
-              {selectedAnswer === question.correctAnswer ? '✨ Correct! A true scholar!' : '🔮 Not quite right...'}
+            }`}>
+              {selectedAnswer === question.correctAnswer ? (
+                <span className="flex items-center gap-2">
+                  <Sparkles className="w-6 h-6" /> Correct! A true scholar!
+                </span>
+              ) : (
+                '🔮 Not quite right...'
+              )}
               {selectedAnswer !== question.correctAnswer && (
-                <span className="block mt-2">
-                  The ancient texts reveal: {question.options[question.correctAnswer]}
+                <span className="block mt-2 text-gray-700">
+                  The correct answer is: {question.options[question.correctAnswer]}
                 </span>
               )}
             </p>
             <button
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white 
+              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white 
                 px-6 py-3 rounded-lg hover:from-indigo-700 hover:to-purple-700 
-                transition-all duration-300 shadow-md hover:shadow-lg font-serif"
+                transition-all duration-300 shadow-lg hover:shadow-xl font-bold"
               onClick={handleNext}
             >
               Continue Quest

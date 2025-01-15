@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { generateMCQs, parseMCQs, testGeminiAPI } from '../services/geminiService';
 import { useStudyStore } from '../stores/studyStore';
+import { UploadCloud } from 'lucide-react'; // Import an icon for the upload button
 
 export function LectureUploader() {
   const [isLoading, setIsLoading] = useState(false);
@@ -19,7 +20,6 @@ export function LectureUploader() {
     setProgress(0);
 
     try {
-      // Read file as ArrayBuffer for PDFs
       const buffer = await file.arrayBuffer();
       console.log('File loaded as ArrayBuffer');
       
@@ -82,7 +82,7 @@ export function LectureUploader() {
         <div className="mt-4">
           <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mb-4">
             <div 
-              className="bg-purple-600 h-2.5 rounded-full transition-all duration-500" 
+              className="bg-gradient-to-r from-purple-500 to-blue-500 h-2.5 rounded-full transition-all duration-500" 
               style={{ width: `${progress}%` }}
             ></div>
           </div>
@@ -101,18 +101,23 @@ export function LectureUploader() {
         </div>
       )}
       
-      <div className="max-w-xl mx-auto">
-        <label className="block">
-          <span className="sr-only">Choose lecture file</span>
+      <div className="max-w-xl mx-auto bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-white/20">
+        <h2 className="text-2xl font-bold text-indigo-900 mb-6">
+          Upload Your Lecture
+        </h2>
+        <label className="block cursor-pointer">
+          <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-purple-300 rounded-lg bg-gradient-to-br from-purple-50 to-blue-50 hover:from-purple-100 hover:to-blue-100 transition-all duration-300">
+            <UploadCloud className="w-12 h-12 text-purple-500 mb-4" />
+            <span className="text-purple-700 font-semibold">
+              Drag & drop or <span className="text-blue-600 underline">browse</span> your file
+            </span>
+            <span className="text-sm text-gray-500 mt-2">
+              Supported formats: PDF, DOC, DOCX, TXT
+            </span>
+          </div>
           <input
             type="file"
-            className="block w-full text-sm text-slate-500
-              file:mr-4 file:py-2 file:px-4
-              file:rounded-full file:border-0
-              file:text-sm file:font-semibold
-              file:bg-violet-50 file:text-violet-700
-              hover:file:bg-violet-100
-              disabled:opacity-50"
+            className="hidden"
             accept=".txt,.pdf,.doc,.docx"
             onChange={handleFileUpload}
             disabled={isLoading}
@@ -127,11 +132,11 @@ export function LectureUploader() {
 
         <button
           onClick={testAPI}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="mt-6 px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg"
         >
           Test API Connection
         </button>
       </div>
     </div>
   );
-} 
+}
